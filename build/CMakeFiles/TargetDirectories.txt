@@ -1,0 +1,2 @@
+/home/hlink/luckfox_pico_rtsp_yolov5-master/build/CMakeFiles/edit_cache.dir
+/home/hlink/luckfox_pico_rtsp_yolov5-master/build/CMakeFiles/rebuild_cache.dir

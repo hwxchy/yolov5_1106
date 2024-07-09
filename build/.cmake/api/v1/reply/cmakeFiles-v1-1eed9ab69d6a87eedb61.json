@@ -1,0 +1,19 @@
+{
+	"inputs" : 
+	[
+		{
+			"path" : "CMakeLists.txt"
+		}
+	],
+	"kind" : "cmakeFiles",
+	"paths" : 
+	{
+		"build" : "/home/hlink/luckfox_pico_rtsp_yolov5-master/build",
+		"source" : "/home/hlink/luckfox_pico_rtsp_yolov5-master"
+	},
+	"version" : 
+	{
+		"major" : 1,
+		"minor" : 0
+	}
+}
