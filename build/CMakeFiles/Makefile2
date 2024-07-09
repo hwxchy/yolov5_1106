@@ -54,25 +54,68 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/hlink/luckfox_pico_rtsp_yolov5-master
+CMAKE_SOURCE_DIR = /home/hlink/yolov5_1106
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/hlink/luckfox_pico_rtsp_yolov5-master/build
+CMAKE_BINARY_DIR = /home/hlink/yolov5_1106/build
 
 #=============================================================================
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
-all:
+all: CMakeFiles/luckfox_rtsp_yolov5.dir/all
+all: 3rdparty.out/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
-preinstall:
+preinstall: 3rdparty.out/preinstall
 .PHONY : preinstall
 
 # The main recursive "clean" target.
-clean:
+clean: CMakeFiles/luckfox_rtsp_yolov5.dir/clean
+clean: 3rdparty.out/clean
 .PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory 3rdparty.out
+
+# Recursive "all" directory target.
+3rdparty.out/all:
+.PHONY : 3rdparty.out/all
+
+# Recursive "preinstall" directory target.
+3rdparty.out/preinstall:
+.PHONY : 3rdparty.out/preinstall
+
+# Recursive "clean" directory target.
+3rdparty.out/clean:
+.PHONY : 3rdparty.out/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/luckfox_rtsp_yolov5.dir
+
+# All Build rule for target.
+CMakeFiles/luckfox_rtsp_yolov5.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luckfox_rtsp_yolov5.dir/build.make CMakeFiles/luckfox_rtsp_yolov5.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luckfox_rtsp_yolov5.dir/build.make CMakeFiles/luckfox_rtsp_yolov5.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/hlink/yolov5_1106/build/CMakeFiles --progress-num=1,2,3,4,5 "Built target luckfox_rtsp_yolov5"
+.PHONY : CMakeFiles/luckfox_rtsp_yolov5.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/luckfox_rtsp_yolov5.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/hlink/yolov5_1106/build/CMakeFiles 5
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/luckfox_rtsp_yolov5.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/hlink/yolov5_1106/build/CMakeFiles 0
+.PHONY : CMakeFiles/luckfox_rtsp_yolov5.dir/rule
+
+# Convenience name for target.
+luckfox_rtsp_yolov5: CMakeFiles/luckfox_rtsp_yolov5.dir/rule
+.PHONY : luckfox_rtsp_yolov5
+
+# clean rule for target.
+CMakeFiles/luckfox_rtsp_yolov5.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luckfox_rtsp_yolov5.dir/build.make CMakeFiles/luckfox_rtsp_yolov5.dir/clean
+.PHONY : CMakeFiles/luckfox_rtsp_yolov5.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

@@ -1,5 +1,5 @@
 CMakeFiles/luckfox_rtsp_yolov5.dir/src/yolov5.cc.o: \
- /home/hlink/luckfox_pico_rtsp_yolov5-master/src/yolov5.cc \
+ /home/hlink/yolov5_1106/src/yolov5.cc \
  /home/hlink/luckfox-pico/tools/linux/toolchain/arm-rockchip830-linux-uclibcgnueabihf/arm-rockchip830-linux-uclibcgnueabihf/sysroot/usr/include/stdio.h \
  /home/hlink/luckfox-pico/tools/linux/toolchain/arm-rockchip830-linux-uclibcgnueabihf/arm-rockchip830-linux-uclibcgnueabihf/sysroot/usr/include/features.h \
  /home/hlink/luckfox-pico/tools/linux/toolchain/arm-rockchip830-linux-uclibcgnueabihf/arm-rockchip830-linux-uclibcgnueabihf/sysroot/usr/include/bits/uClibc_config.h \
@@ -50,11 +50,11 @@ CMakeFiles/luckfox_rtsp_yolov5.dir/src/yolov5.cc.o: \
  /home/hlink/luckfox-pico/tools/linux/toolchain/arm-rockchip830-linux-uclibcgnueabihf/arm-rockchip830-linux-uclibcgnueabihf/sysroot/usr/include/bits/nan.h \
  /home/hlink/luckfox-pico/tools/linux/toolchain/arm-rockchip830-linux-uclibcgnueabihf/arm-rockchip830-linux-uclibcgnueabihf/sysroot/usr/include/bits/mathdef.h \
  /home/hlink/luckfox-pico/tools/linux/toolchain/arm-rockchip830-linux-uclibcgnueabihf/arm-rockchip830-linux-uclibcgnueabihf/sysroot/usr/include/bits/mathcalls.h \
- /home/hlink/luckfox_pico_rtsp_yolov5-master/include/rknn/yolov5.h \
- /home/hlink/luckfox_pico_rtsp_yolov5-master/3rdparty/rknpu2/include/rknn_api.h \
+ /home/hlink/yolov5_1106/include/rknn/yolov5.h \
+ /home/hlink/yolov5_1106/3rdparty/rknpu2/include/rknn_api.h \
  /home/hlink/luckfox-pico/tools/linux/toolchain/arm-rockchip830-linux-uclibcgnueabihf/lib/gcc/arm-rockchip830-linux-uclibcgnueabihf/8.3.0/include/stdint.h \
  /home/hlink/luckfox-pico/tools/linux/toolchain/arm-rockchip830-linux-uclibcgnueabihf/arm-rockchip830-linux-uclibcgnueabihf/sysroot/usr/include/stdint.h \
- /home/hlink/luckfox_pico_rtsp_yolov5-master/include/rknn/postprocess.h \
+ /home/hlink/yolov5_1106/include/rknn/postprocess.h \
  /home/hlink/luckfox-pico/tools/linux/toolchain/arm-rockchip830-linux-uclibcgnueabihf/arm-rockchip830-linux-uclibcgnueabihf/include/c++/8.3.0/vector \
  /home/hlink/luckfox-pico/tools/linux/toolchain/arm-rockchip830-linux-uclibcgnueabihf/arm-rockchip830-linux-uclibcgnueabihf/include/c++/8.3.0/bits/stl_algobase.h \
  /home/hlink/luckfox-pico/tools/linux/toolchain/arm-rockchip830-linux-uclibcgnueabihf/arm-rockchip830-linux-uclibcgnueabihf/include/c++/8.3.0/bits/functexcept.h \

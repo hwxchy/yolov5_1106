@@ -1,2 +1,13 @@
-/home/hlink/luckfox_pico_rtsp_yolov5-master/build/CMakeFiles/edit_cache.dir
-/home/hlink/luckfox_pico_rtsp_yolov5-master/build/CMakeFiles/rebuild_cache.dir
+/home/hlink/yolov5_1106/build/CMakeFiles/luckfox_rtsp_yolov5.dir
+/home/hlink/yolov5_1106/build/CMakeFiles/edit_cache.dir
+/home/hlink/yolov5_1106/build/CMakeFiles/rebuild_cache.dir
+/home/hlink/yolov5_1106/build/CMakeFiles/list_install_components.dir
+/home/hlink/yolov5_1106/build/CMakeFiles/install.dir
+/home/hlink/yolov5_1106/build/CMakeFiles/install/local.dir
+/home/hlink/yolov5_1106/build/CMakeFiles/install/strip.dir
+/home/hlink/yolov5_1106/build/3rdparty.out/CMakeFiles/edit_cache.dir
+/home/hlink/yolov5_1106/build/3rdparty.out/CMakeFiles/rebuild_cache.dir
+/home/hlink/yolov5_1106/build/3rdparty.out/CMakeFiles/list_install_components.dir
+/home/hlink/yolov5_1106/build/3rdparty.out/CMakeFiles/install.dir
+/home/hlink/yolov5_1106/build/3rdparty.out/CMakeFiles/install/local.dir
+/home/hlink/yolov5_1106/build/3rdparty.out/CMakeFiles/install/strip.dir

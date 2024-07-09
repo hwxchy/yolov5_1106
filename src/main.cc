@@ -26,146 +26,180 @@
 
 int serial_fd;
 
-int send_data(char* data) {
-    ssize_t bytes_written = write(serial_fd, data, strlen(data));
-    if (bytes_written < 0) {
-        perror("Error writing to serial port");
-        return 1;
-    }
-    printf("\rtx_buffer: \n %s ", data);
-    
-    return 0;
+int send_data(unsigned char *data, int length)
+{
+	ssize_t bytes_written = write(serial_fd, data, length);
+	if (bytes_written < 0)
+	{
+		perror("Error writing to serial port");
+		return 1;
+	}
+	// printf("\rtx_buffer: \n");
+	for (int i = 0; i < length; i++)
+	{
+		printf("%02X ", data[i]); // 以十六进制格式打印数据
+	}
+	printf("\n");
+
+	return 0;
 }
 
+void Emm_V5_Vel_Control(unsigned char addr, unsigned char dir, unsigned int vel, unsigned char acc, unsigned char snF)
+{
+	unsigned char cmd[16];
+	cmd[0] = addr;
+	cmd[1] = 0xF6;
+	cmd[2] = dir;
+	cmd[3] = (vel >> 8) & 0xFF;
+	cmd[4] = vel & 0xFF;
+	cmd[5] = acc;
+	cmd[6] = 0x00;
+	cmd[7] = 0x6B;
+	int result = send_data(cmd, 8); // 发送cmd数组中的前8个元素到串口
+	// Send cmd to motor controller
+}
+
+void Emm_V5_Stop_Now(unsigned char addr, unsigned char snF)
+{
+	unsigned char cmd[5];
+	cmd[0] = addr;
+	cmd[1] = 0xFE;
+	cmd[2] = 0x98;
+	cmd[3] = 0x00;
+	cmd[4] = 0x6B;
+	int result = send_data(cmd, 5); // 发送cmd数组中的前8个元素到串口
+	// Send cmd to motor controller
+}
 
 // disp size
-int width    = 720;
-int height   = 480;
+int width = 720;
+int height = 480;
 
 // model size
 int model_width = 640;
-int model_height = 640;	
-float scale ;
-int leftPadding ;
-int topPadding  ;
+int model_height = 640;
+float scale;
+int leftPadding;
+int topPadding;
 
 bool quit = false;
-static void sigterm_handler(int sig) {
+static void sigterm_handler(int sig)
+{
 	fprintf(stderr, "signal %d\n", sig);
 	quit = true;
 }
 
 cv::Mat letterbox(cv::Mat input)
 {
-	float scaleX = (float)model_width  / (float)width; //0.888
-	float scaleY = (float)model_height / (float)height; //1.125	
+	float scaleX = (float)model_width / (float)width;	// 0.888
+	float scaleY = (float)model_height / (float)height; // 1.125
 	scale = scaleX < scaleY ? scaleX : scaleY;
-	
-	int inputWidth   = (int)((float)width * scale);
-	int inputHeight  = (int)((float)height * scale);
 
-	leftPadding = (model_width  - inputWidth) / 2;
-	topPadding  = (model_height - inputHeight) / 2;	
-	
+	int inputWidth = (int)((float)width * scale);
+	int inputHeight = (int)((float)height * scale);
+
+	leftPadding = (model_width - inputWidth) / 2;
+	topPadding = (model_height - inputHeight) / 2;
 
 	cv::Mat inputScale;
-    cv::resize(input, inputScale, cv::Size(inputWidth,inputHeight), 0, 0, cv::INTER_LINEAR);	
-	cv::Mat letterboxImage(640, 640, CV_8UC3,cv::Scalar(0, 0, 0));
-    cv::Rect roi(leftPadding, topPadding, inputWidth, inputHeight);
-    inputScale.copyTo(letterboxImage(roi));
+	cv::resize(input, inputScale, cv::Size(inputWidth, inputHeight), 0, 0, cv::INTER_LINEAR);
+	cv::Mat letterboxImage(640, 640, CV_8UC3, cv::Scalar(0, 0, 0));
+	cv::Rect roi(leftPadding, topPadding, inputWidth, inputHeight);
+	inputScale.copyTo(letterboxImage(roi));
 
-	return letterboxImage; 	
+	return letterboxImage;
 }
 
-void mapCoordinates(int *x, int *y) {	
+void mapCoordinates(int *x, int *y)
+{
 	int mx = *x - leftPadding;
 	int my = *y - topPadding;
 
-    *x = (int)((float)mx / scale);
-    *y = (int)((float)my / scale);
+	*x = (int)((float)mx / scale);
+	*y = (int)((float)my / scale);
 }
 
+int main(int argc, char *argv[])
+{
 
-int main(int argc, char *argv[]) {
+	char serial_port[] = "/dev/ttyS3";
 
+	serial_fd = open(serial_port, O_RDWR | O_NOCTTY);
+	if (serial_fd == -1)
+	{
+		perror("Failed to open serial port");
+		return 1;
+	}
 
+	struct termios tty;
+	memset(&tty, 0, sizeof(tty));
 
+	if (tcgetattr(serial_fd, &tty) != 0)
+	{
+		perror("Error from tcgetattr");
+		return 1;
+	}
 
-    char serial_port[] = "/dev/ttyS3";
+	cfsetospeed(&tty, B115200);
+	cfsetispeed(&tty, B115200);
 
-    serial_fd = open(serial_port, O_RDWR | O_NOCTTY);
-    if (serial_fd == -1) {
-        perror("Failed to open serial port");
-        return 1;
-    }
+	tty.c_cflag &= ~PARENB;
+	tty.c_cflag &= ~CSTOPB;
+	tty.c_cflag &= ~CSIZE;
+	tty.c_cflag |= CS8;
 
-    struct termios tty;
-    memset(&tty, 0, sizeof(tty));
+	if (tcsetattr(serial_fd, TCSANOW, &tty) != 0)
+	{
+		perror("Error from tcsetattr");
+		return 1;
+	}
 
-    if (tcgetattr(serial_fd, &tty) != 0) {
-        perror("Error from tcgetattr");
-        return 1;
-    }
+	RK_S32 s32Ret = 0;
+	int sX, sY, eX, eY;
 
-    cfsetospeed(&tty, B115200);
-    cfsetispeed(&tty, B115200);
-
-    tty.c_cflag &= ~PARENB;
-    tty.c_cflag &= ~CSTOPB;
-    tty.c_cflag &= ~CSIZE;
-    tty.c_cflag |= CS8;
-
-    if (tcsetattr(serial_fd, TCSANOW, &tty) != 0) {
-        perror("Error from tcsetattr");
-        return 1;
-    }
-
-	
-	RK_S32 s32Ret = 0; 
-	int sX,sY,eX,eY; 
-	
 	// Ctrl-c quit
 	signal(SIGINT, sigterm_handler);
-		
+
 	// Rknn model
 	char text[16];
-	rknn_app_context_t rknn_app_ctx;	
+	rknn_app_context_t rknn_app_ctx;
 	object_detect_result_list od_results;
-    int ret;
+	int ret;
 	const char *model_path = "./model/yolov5.rknn";
-    memset(&rknn_app_ctx, 0, sizeof(rknn_app_context_t));	
+	memset(&rknn_app_ctx, 0, sizeof(rknn_app_context_t));
 	init_yolov5_model(model_path, &rknn_app_ctx);
 	printf("init rknn model success!\n");
 	init_post_process();
 
-	//h264_frame	
-	VENC_STREAM_S stFrame;	
+	// h264_frame
+	VENC_STREAM_S stFrame;
 	stFrame.pstPack = (VENC_PACK_S *)malloc(sizeof(VENC_PACK_S));
- 	VIDEO_FRAME_INFO_S h264_frame;
- 	VIDEO_FRAME_INFO_S stVpssFrame;
+	VIDEO_FRAME_INFO_S h264_frame;
+	VIDEO_FRAME_INFO_S stVpssFrame;
 
 	// rkaiq init
-	RK_BOOL multi_sensor = RK_FALSE;	
+	RK_BOOL multi_sensor = RK_FALSE;
 	const char *iq_dir = "/etc/iqfiles";
 	rk_aiq_working_mode_t hdr_mode = RK_AIQ_WORKING_MODE_NORMAL;
-	//hdr_mode = RK_AIQ_WORKING_MODE_ISP_HDR2;
+	// hdr_mode = RK_AIQ_WORKING_MODE_ISP_HDR2;
 	SAMPLE_COMM_ISP_Init(0, hdr_mode, multi_sensor, iq_dir);
 	SAMPLE_COMM_ISP_Run(0);
 
 	// rkmpi init
-	if (RK_MPI_SYS_Init() != RK_SUCCESS) {
+	if (RK_MPI_SYS_Init() != RK_SUCCESS)
+	{
 		RK_LOGE("rk mpi sys init fail!");
 		return -1;
 	}
 
-	// rtsp init	
+	// rtsp init
 	rtsp_demo_handle g_rtsplive = NULL;
 	rtsp_session_handle g_rtsp_session;
 	g_rtsplive = create_rtsp_demo(554);
 	g_rtsp_session = rtsp_new_session(g_rtsplive, "/live/0");
 	rtsp_set_video(g_rtsp_session, RTSP_CODEC_ID_VIDEO_H264, NULL, 0);
 	rtsp_sync_video_ts(g_rtsp_session, rtsp_get_reltime(), rtsp_get_ntptime());
-	
+
 	// vi init
 	vi_dev_init();
 	vi_chn_init(0, width, height);
@@ -184,7 +218,8 @@ int main(int argc, char *argv[]) {
 	stvpssChn.s32ChnId = 0;
 	printf("====RK_MPI_SYS_Bind vi0 to vpss0====\n");
 	s32Ret = RK_MPI_SYS_Bind(&stSrcChn, &stvpssChn);
-	if (s32Ret != RK_SUCCESS) {
+	if (s32Ret != RK_SUCCESS)
+	{
 		RK_LOGE("bind 0 ch venc failed");
 		return -1;
 	}
@@ -193,72 +228,92 @@ int main(int argc, char *argv[]) {
 	RK_CODEC_ID_E enCodecType = RK_VIDEO_ID_AVC;
 	venc_init(0, width, height, enCodecType);
 
-	printf("venc init success\n");	
-	
-  while(!quit)
-	{	
+	printf("venc init success\n");
+
+	while (!quit)
+	{
 		// get vpss frame
-		s32Ret = RK_MPI_VPSS_GetChnFrame(0,0, &stVpssFrame,-1);
-		if(s32Ret == RK_SUCCESS)
+		s32Ret = RK_MPI_VPSS_GetChnFrame(0, 0, &stVpssFrame, -1);
+		if (s32Ret == RK_SUCCESS)
 		{
-			void *data = RK_MPI_MB_Handle2VirAddr(stVpssFrame.stVFrame.pMbBlk);	
-			//opencv	
-			cv::Mat frame(height,width,CV_8UC3,data);			
-			//cv::Mat frame640;
-        	//cv::resize(frame, frame640, cv::Size(640,640), 0, 0, cv::INTER_LINEAR);	
-			//letterbox
-			cv::Mat letterboxImage = letterbox(frame);	
-			memcpy(rknn_app_ctx.input_mems[0]->virt_addr, letterboxImage.data, model_width*model_height*3);		
+			void *data = RK_MPI_MB_Handle2VirAddr(stVpssFrame.stVFrame.pMbBlk);
+			// opencv
+			cv::Mat frame(height, width, CV_8UC3, data);
+			// cv::Mat frame640;
+			// cv::resize(frame, frame640, cv::Size(640,640), 0, 0, cv::INTER_LINEAR);
+			// letterbox
+			cv::Mat letterboxImage = letterbox(frame);
+			memcpy(rknn_app_ctx.input_mems[0]->virt_addr, letterboxImage.data, model_width * model_height * 3);
 			inference_yolov5_model(&rknn_app_ctx, &od_results);
 
-			for(int i = 0; i < od_results.count; i++)
-			{					
-				//获取框的四个坐标 
-				if(od_results.count >= 1)
+			for (int i = 0; i < od_results.count; i++)
+			{
+				// 获取框的四个坐标
+				if (od_results.count >= 1)
 				{
 					object_detect_result *det_result = &(od_results.results[i]);
-					printf("%s @ (%d %d %d %d) %.3f\n", coco_cls_to_name(det_result->cls_id),
-							 det_result->box.left, det_result->box.top,
-							 det_result->box.right, det_result->box.bottom,
-							 det_result->prop);
-    				char buffer[256];
-					sprintf(buffer, "%s @ (%d %d %d %d) %.3f\n", coco_cls_to_name(det_result->cls_id),
-							det_result->box.left, det_result->box.top,
-							det_result->box.right, det_result->box.bottom,
-							det_result->prop);
-					send_data(buffer);
+					// printf("%s @ (%d %d %d %d) %.3f\n", coco_cls_to_name(det_result->cls_id),
+					// 		 det_result->box.left, det_result->box.top,
+					// 		 det_result->box.right, det_result->box.bottom,
+					// 		 det_result->prop);
+					// sprintf(buffer, "%s @ (%d %d %d %d) %.3f\n", coco_cls_to_name(det_result->cls_id),
+					// 		det_result->box.left, det_result->box.top,
+					// 		det_result->box.right, det_result->box.bottom,
+					// 		det_result->prop);
+					int center_x = (det_result->box.left + det_result->box.right) / 2;
+					int diff = center_x - 320;
+					unsigned char addr = 0x01;
+					unsigned char dir = 0; // CW direction
+					unsigned int vel = 1;  // 1000 RPM
+					unsigned char acc = 0;
+					unsigned char snF = false;
 
-					sX = (int)(det_result->box.left   );	
-					sY = (int)(det_result->box.top 	  );	
-					eX = (int)(det_result->box.right  );	
-					eY = (int)(det_result->box.bottom );
-					mapCoordinates(&sX,&sY);
-					mapCoordinates(&eX,&eY);
+					if (diff > 30 && det_result->prop > 0.6)
+					{
+						dir = 0;
+						Emm_V5_Vel_Control(addr, dir, vel, acc, snF);
+					}
+					else if (diff < -30 && det_result->prop > 0.6)
+					{
+						dir = 1;
+						Emm_V5_Vel_Control(addr, dir, vel, acc, snF);
+					}
+					else
+					{
+						Emm_V5_Stop_Now(addr, snF);
+					}
 
-					cv::rectangle(frame,cv::Point(sX ,sY),
-								        cv::Point(eX ,eY),
-										cv::Scalar(0,255,0),3);
+					sX = (int)(det_result->box.left);
+					sY = (int)(det_result->box.top);
+					eX = (int)(det_result->box.right);
+					eY = (int)(det_result->box.bottom);
+					mapCoordinates(&sX, &sY);
+					mapCoordinates(&eX, &eY);
+
+					cv::rectangle(frame, cv::Point(sX, sY),
+								  cv::Point(eX, eY),
+								  cv::Scalar(0, 255, 0), 3);
 					sprintf(text, "%s %.1f%%", coco_cls_to_name(det_result->cls_id), det_result->prop * 100);
-					cv::putText(frame,text,cv::Point(sX, sY - 8),
-												 cv::FONT_HERSHEY_SIMPLEX,1,
-												 cv::Scalar(0,255,0),2);
+					cv::putText(frame, text, cv::Point(sX, sY - 8),
+								cv::FONT_HERSHEY_SIMPLEX, 1,
+								cv::Scalar(0, 255, 0), 2);
 				}
 			}
 
-			memcpy(data, frame.data, width * height * 3);					
+			memcpy(data, frame.data, width * height * 3);
 		}
-		
+
 		// send stream
 		// encode H264
-		RK_MPI_VENC_SendFrame(0, &stVpssFrame,-1);
+		RK_MPI_VENC_SendFrame(0, &stVpssFrame, -1);
 		// rtsp
 		s32Ret = RK_MPI_VENC_GetStream(0, &stFrame, -1);
-		if(s32Ret == RK_SUCCESS)
+		if (s32Ret == RK_SUCCESS)
 		{
-			if(g_rtsplive && g_rtsp_session)
+			if (g_rtsplive && g_rtsp_session)
 			{
-				//printf("len = %d PTS = %d \n",stFrame.pstPack->u32Len, stFrame.pstPack->u64PTS);
-				
+				// printf("len = %d PTS = %d \n",stFrame.pstPack->u32Len, stFrame.pstPack->u64PTS);
+
 				void *pData = RK_MPI_MB_Handle2VirAddr(stFrame.pstPack->pMbBlk);
 				rtsp_tx_video(g_rtsp_session, (uint8_t *)pData, stFrame.pstPack->u32Len,
 							  stFrame.pstPack->u64PTS);
@@ -266,30 +321,30 @@ int main(int argc, char *argv[]) {
 			}
 		}
 
-		// release frame 
+		// release frame
 		s32Ret = RK_MPI_VPSS_ReleaseChnFrame(0, 0, &stVpssFrame);
-		if (s32Ret != RK_SUCCESS) {
+		if (s32Ret != RK_SUCCESS)
+		{
 			RK_LOGE("RK_MPI_VI_ReleaseChnFrame fail %x", s32Ret);
 		}
 		s32Ret = RK_MPI_VENC_ReleaseStream(0, &stFrame);
-		if (s32Ret != RK_SUCCESS) {
+		if (s32Ret != RK_SUCCESS)
+		{
 			RK_LOGE("RK_MPI_VENC_ReleaseStream fail %x", s32Ret);
 		}
-		memset(text,0,8);
+		memset(text, 0, 8);
 	}
-
-
 
 	printf("Release\n");
 	close(serial_fd);
 	RK_MPI_SYS_UnBind(&stSrcChn, &stvpssChn);
-	
+
 	RK_MPI_VI_DisableChn(0, 0);
 	RK_MPI_VI_DisableDev(0);
-	
+
 	RK_MPI_VPSS_StopGrp(0);
 	RK_MPI_VPSS_DestroyGrp(0);
-	
+
 	RK_MPI_VENC_StopRecvFrame(0);
 	RK_MPI_VENC_DestroyChn(0);
 
@@ -302,8 +357,8 @@ int main(int argc, char *argv[]) {
 	RK_MPI_SYS_Exit();
 
 	// Release rknn model
-    release_yolov5_model(&rknn_app_ctx);		
+	release_yolov5_model(&rknn_app_ctx);
 	deinit_post_process();
-	
+
 	return 0;
 }

@@ -1,4 +1,4 @@
-# Install script for directory: /home/hlink/luckfox_pico_rtsp_yolov5-master/3rdparty
+# Install script for directory: /home/hlink/yolov5_1106/3rdparty
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -43,10 +43,10 @@ if(NOT DEFINED CMAKE_OBJDUMP)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE PROGRAM FILES "/home/hlink/luckfox_pico_rtsp_yolov5-master/3rdparty/rknpu2/Linux/armhf-uclibc/librknnmrt.so")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE PROGRAM FILES "/home/hlink/yolov5_1106/3rdparty/rknpu2/Linux/armhf-uclibc/librknnmrt.so")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE PROGRAM FILES "/home/hlink/luckfox_pico_rtsp_yolov5-master/3rdparty/librga/Linux/armhf_uclibc/librga.so")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE PROGRAM FILES "/home/hlink/yolov5_1106/3rdparty/librga/Linux/armhf_uclibc/librga.so")
 endif()
 
